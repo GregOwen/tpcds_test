@@ -37,7 +37,7 @@ for (q_class, queries) in query_classes.items():
     class_means[q_class] = class_mean
 
 # Write to output file
-with open(NamedTemporaryFile(delete=False), 'w') as wf:
+with NamedTemporaryFile(delete=False) as wf:
     for (q_class, time) in class_means:
         wf.write("%s\t%f\n" % (q_class, time))
     print "Wrote output to %s" % wf.name
