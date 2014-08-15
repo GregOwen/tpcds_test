@@ -30,7 +30,7 @@ timefile=$(mktemp)
 # Run test
 for file in $( ls $CLEAN_DIR | shuf ); do
     for i in `seq 1 $NUM_TRIALS`; do
-	echo Running $file ($i of $NUMTRIALS)
+	echo "Running $file ($i of $NUM_TRIALS)"
 	
 	# Prepare the temp file with all set options
 	tmpfile=$(mktemp)
