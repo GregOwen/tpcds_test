@@ -33,11 +33,12 @@ for (query, times) in query_times.items():
 for (q_class, queries) in query_classes.items():
     files = [query + ".sql" for query in queries]
     class_times = [float(t) for fil in files for t in query_times[fil]]
-    class_mean = geo_mean(class_times)
-    class_means[q_class] = class_mean
+    if class_times:
+        class_mean = geo_mean(class_times)
+        class_means[q_class] = class_mean
 
 # Write to output file
 with NamedTemporaryFile(delete=False) as wf:
-    for (q_class, time) in class_means:
+    for (q_class, time) in class_means.items():
         wf.write("%s\t%f\n" % (q_class, time))
     print "Wrote output to %s" % wf.name
