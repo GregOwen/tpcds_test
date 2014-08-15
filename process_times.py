@@ -32,7 +32,7 @@ for (query, times) in query_times.items():
 # Aggregate by class
 for (q_class, queries) in query_classes.items():
     files = [query + ".sql" for query in queries]
-    class_times = [t for fil in files for t in query_times[fil]]
+    class_times = [float(t) for fil in files for t in query_times[fil]]
     class_mean = geo_mean(class_times)
     class_means[q_class] = class_mean
 
