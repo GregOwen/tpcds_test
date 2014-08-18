@@ -19,6 +19,8 @@ set spark.sql.scheduler.pool=$POOL_NAME;\n
 set spark.sql.parquet.cacheMetadata=true;\n
 "
 
+NUM_TRIALS=5
+
 # Make sure we can do broadcast hash joins
 TABLES=(customer customer_address customer_demographics date_dim household_demographics item promotion store time_dim)
 for table in ${TABLES[*]}; do
@@ -28,18 +30,21 @@ done
 timefile=$(mktemp)
 # Run test
 for file in $( ls $CLEAN_DIR | shuf ); do
-    echo Running $file
+    for i in `seq 1 $NUM_TRIALS`; do
+	echo "Running $file ($i of $NUM_TRIALS)"
+	
+	# Prepare the temp file with all set options
+	tmpfile=$(mktemp)
+	echo -e $TABLE_CONFIG > $tmpfile
+	cat $CLEAN_DIR/$file >> $tmpfile
 
-    # Prepare the temp file with all set options
-    tmpfile=$(mktemp)
-    echo -e $TABLE_CONFIG > $tmpfile
-    cat $CLEAN_DIR/$file >> $tmpfile
-
-    # Find output from cleaned file
-    output=$(($BEELINE $BEELINE_OPTS -f $tmpfile 1>/dev/null) 2>&1 | tail -2 | head -1)
-    time=$(echo "$output" | grep seconds | cut -d "(" -f 2 | cut -d " " -f1)
-    echo -e "$file\t$time seconds"
-    echo -e "$file\t$time" >> $timefile
+	# Find output from cleaned file
+	output=$(($BEELINE $BEELINE_OPTS -f $tmpfile 1>/dev/null) 2>&1 | tail -2 | head -1)
+	time=$(echo "$output" | grep seconds | cut -d "(" -f 2 | cut -d " " -f1)
+	echo -e "$file\t$time seconds"
+	echo -e "$file\t$time" >> $timefile
+    done
+    echo ""
 done
 
 cat $timefile | sort >> ${timefile}_sorted
